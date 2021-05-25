@@ -1,0 +1,15 @@
+@if (User.Identity.IsAuthenticated)
+{
+    <li class="nav">
+        <a asp-page="/Identity/Logout">Logout of: @User.Identity.Name</a>
+    </li>
+}
+else
+{
+    <li class="nav">
+        <a asp-page="/Identity/Register">Register</a>
+    </li>
+    <li class="nav">
+        <a asp-page="/Identity/Login">Login</a>
+    </li>
+}

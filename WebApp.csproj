@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net5.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="dapper" Version="2.0.90" />
+    <PackageReference Include="mailkit" Version="2.12.0" />
+    <PackageReference Include="mimekit" Version="2.12.0" />
+    <PackageReference Include="npgsql" Version="5.0.5" />
+  </ItemGroup>
+
+</Project>

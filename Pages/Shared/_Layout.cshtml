@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang = "en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - skeleton login</title>
+    <link rel="stylesheet" href="~/css/site.css">
+</head>
+<body>
+    <header>
+        <nav>
+            <div>
+                <ul class="nav">
+                    <li class="nav">
+                        <a asp-page="/Index">Home</a>
+                    </li>
+                    <li class="nav">
+                        <a asp-page="/Privacy">Privacy</a>
+                    </li>
+                    <partial name="_LoginPartial"/>
+                </ul>
+            </div>
+        </nav>
+    </header>
+    <div>
+        <main>
+            @RenderBody()
+        </main>
+    </div>
+    <footer>
+        <div>
+            &copy; 2021 - Skeleton Template - <a asp-page="/Privacy">Privacy</a>
+        </div>
+    </footer>
+</body>
+</html>
