@@ -9,11 +9,11 @@ namespace WebApp.Data
 {
     public class UserStore : IUserStore<ApplicationUser>, IUserEmailStore<ApplicationUser>, IUserPhoneNumberStore<ApplicationUser>, IUserTwoFactorStore<ApplicationUser>, IUserPasswordStore<ApplicationUser>
     {
-        private readonly string _connectionString;
+        private readonly NpgsqlConnection _connection;
 
-        public UserStore(string connectionString)
+        public UserStore(NpgsqlConnection connection)
         {
-            _connectionString = connectionString;
+            _connection = connection;
         }
 
         public async Task<IdentityResult> CreateAsync(ApplicationUser user, CancellationToken cancellationToken)
@@ -27,10 +27,10 @@ namespace WebApp.Data
                                     @{nameof(ApplicationUser.PhoneNumber)}, @{nameof(ApplicationUser.PhoneNumberConfirmed)}, @{nameof(ApplicationUser.TwoFactorEnabled)}) 
                             RETURNING id";
 
-            using (var connection = new NpgsqlConnection(_connectionString))
+            using (_connection)
             {
-                await connection.OpenAsync(cancellationToken);
-                user.Id = await connection.QuerySingleAsync<int>(sql, user);
+                await _connection.OpenAsync(cancellationToken);
+                user.Id = await _connection.QuerySingleAsync<int>(sql, user);
             }
 
             return IdentityResult.Success;
@@ -44,10 +44,10 @@ namespace WebApp.Data
                             FROM applicationuser 
                             WHERE id = @{nameof(ApplicationUser.Id)}";
 
-            using (var connection = new NpgsqlConnection(_connectionString))
+            using (_connection)
             {
-                await connection.OpenAsync(cancellationToken);
-                await connection.ExecuteAsync(sql, user);
+                await _connection.OpenAsync(cancellationToken);
+                await _connection.ExecuteAsync(sql, user);
             }            
 
             return IdentityResult.Success;
@@ -61,10 +61,10 @@ namespace WebApp.Data
                             FROM applicationuser 
                             WHERE id = @{nameof(userId)}::integer";
 
-            using (var connection = new NpgsqlConnection(_connectionString))
+            using (_connection)
             {
-                await connection.OpenAsync(cancellationToken);
-                return await connection.QuerySingleOrDefaultAsync<ApplicationUser>(sql, new {userId});
+                await _connection.OpenAsync(cancellationToken);
+                return await _connection.QuerySingleOrDefaultAsync<ApplicationUser>(sql, new {userId});
             }
         }
       
@@ -76,10 +76,10 @@ namespace WebApp.Data
                             FROM applicationuser 
                             WHERE normalizedusername = @{nameof(normalizedUserName)}";
 
-            using (var connection = new NpgsqlConnection(_connectionString))
+            using (_connection)
             {
-                await connection.OpenAsync(cancellationToken);
-                return await connection.QuerySingleOrDefaultAsync<ApplicationUser>(sql, new {normalizedUserName});
+                await _connection.OpenAsync(cancellationToken);
+                return await _connection.QuerySingleOrDefaultAsync<ApplicationUser>(sql, new {normalizedUserName});
             }
         }
        
@@ -126,10 +126,10 @@ namespace WebApp.Data
                                 twofactorenabled = @{nameof(ApplicationUser.TwoFactorEnabled)} 
                             WHERE id = @{nameof(ApplicationUser.Id)}";
 
-            using (var connection = new NpgsqlConnection(_connectionString))
+            using (_connection)
             {
-                await connection.OpenAsync(cancellationToken);
-                await connection.ExecuteAsync(sql, user);
+                await _connection.OpenAsync(cancellationToken);
+                await _connection.ExecuteAsync(sql, user);
             }
 
             return IdentityResult.Success;
@@ -143,10 +143,10 @@ namespace WebApp.Data
                             FROM applicationuser 
                             WHERE normalizedemail = @{nameof(ApplicationUser.NormalizedEmail)}";
 
-            using (var connection = new NpgsqlConnection(_connectionString))
+            using (_connection)
             {
-                await connection.OpenAsync(cancellationToken);
-                return await connection.QuerySingleOrDefaultAsync<ApplicationUser>(sql, new { normalizedEmail });
+                await _connection.OpenAsync(cancellationToken);
+                return await _connection.QuerySingleOrDefaultAsync<ApplicationUser>(sql, new { normalizedEmail });
             }
         }
 

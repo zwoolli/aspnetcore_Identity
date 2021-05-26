@@ -9,11 +9,11 @@ namespace WebApp.Data
 {
     public class RoleStore : IRoleStore<ApplicationRole>
     {
-        private readonly string _connectionString;
+        private readonly NpgsqlConnection _connection;
 
-        public RoleStore(string connectionString)
+        public RoleStore(NpgsqlConnection connection)
         {
-            _connectionString = connectionString;
+            _connection = connection;
         }
 
         public async Task<IdentityResult> CreateAsync(ApplicationRole role, CancellationToken cancellationToken)
@@ -24,10 +24,10 @@ namespace WebApp.Data
                             VALUES (@{nameof(ApplicationRole.Name)}, @{nameof(ApplicationRole.NormalizedName)}) 
                             RETURNING id";
 
-            using (var connection = new NpgsqlConnection(_connectionString))
+            using (_connection)
             {
-                await connection.OpenAsync(cancellationToken);
-                role.Id = await connection.QuerySingleAsync<int>(sql, role);
+                await _connection.OpenAsync(cancellationToken);
+                role.Id = await _connection.QuerySingleAsync<int>(sql, role);
             }
 
             return IdentityResult.Success;
@@ -40,10 +40,10 @@ namespace WebApp.Data
             string sql = $@"DELETE FROM applicationrole 
                             WHERE id = @{nameof(ApplicationRole.Id)}";
 
-            using (var connection = new NpgsqlConnection(_connectionString))
+            using (_connection)
             {
-                await connection.OpenAsync(cancellationToken);
-                await connection.ExecuteAsync(sql, role);
+                await _connection.OpenAsync(cancellationToken);
+                await _connection.ExecuteAsync(sql, role);
             }
 
             return IdentityResult.Success;
@@ -57,10 +57,10 @@ namespace WebApp.Data
                             FROM applicationrole 
                             WHERE id = @{nameof(roleId)}";
 
-            using (var connection = new NpgsqlConnection(_connectionString))
+            using (_connection)
             {
-                await connection.OpenAsync(cancellationToken);
-                return await connection.QuerySingleOrDefaultAsync<ApplicationRole>(sql, new { roleId });
+                await _connection.OpenAsync(cancellationToken);
+                return await _connection.QuerySingleOrDefaultAsync<ApplicationRole>(sql, new { roleId });
             }
         }
 
@@ -72,10 +72,10 @@ namespace WebApp.Data
                             FROM applicationrole 
                             WHERE normalizedname = @{nameof(normalizedRoleName)}";
 
-            using (var connection = new NpgsqlConnection(_connectionString))
+            using (_connection)
             {
-                await connection.OpenAsync(cancellationToken);
-                return await connection.QuerySingleOrDefaultAsync<ApplicationRole>(sql, new { normalizedRoleName });
+                await _connection.OpenAsync(cancellationToken);
+                return await _connection.QuerySingleOrDefaultAsync<ApplicationRole>(sql, new { normalizedRoleName });
             }     
         }
 
@@ -114,10 +114,10 @@ namespace WebApp.Data
                             SET name = @{nameof(ApplicationRole.Name)}, normalizedname = @{nameof(ApplicationRole.NormalizedName)} 
                             WHERE id = @{nameof(ApplicationRole.Id)}";
 
-            using (var connection = new NpgsqlConnection(_connectionString))
+            using (_connection)
             {
-                await connection.OpenAsync(cancellationToken);
-                await connection.ExecuteAsync(sql, role);
+                await _connection.OpenAsync(cancellationToken);
+                await _connection.ExecuteAsync(sql, role);
             }
 
             return IdentityResult.Success;

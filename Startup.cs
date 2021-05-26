@@ -22,9 +22,18 @@ namespace WebApp
         public void ConfigureServices(IServiceCollection services)
         {
             string connectionString = Configuration.GetConnectionString("DefaultConnection");
+            // TODO: look at the bottom of the "Custom Storage Providers" Microsoft article. It looks like their
+            // DapperUsersTable doesn't take a connecton string as input, but it's injected somehow. The UserStore
+            // and RoleStore classes do not take a connection string, but are injected with the DapperUsersTable 
+            // Or UserRepository (in my case)
+            //https://docs.microsoft.com/en-us/aspnet/core/security/authentication/identity-custom-storage-providers?view=aspnetcore-5.0
+            services.AddScoped<Npgsql.NpgsqlConnection>(e => new Npgsql.NpgsqlConnection(connectionString));
+            services.AddScoped<IUserStore<ApplicationUser>, UserStore>();
+            services.AddScoped<IRoleStore<ApplicationRole>, RoleStore>();
 
-            services.AddScoped<IUserStore<ApplicationUser>>(x => new UserStore(connectionString));
-            services.AddScoped<IRoleStore<ApplicationRole>>(x => new RoleStore(connectionString));
+
+            // services.AddScoped<IUserStore<ApplicationUser>>(x => new UserStore(connectionString));
+            // services.AddScoped<IRoleStore<ApplicationRole>>(x => new RoleStore(connectionString));
             services.AddIdentity<ApplicationUser, ApplicationRole>().AddDefaultTokenProviders();
             services.Configure<IdentityOptions>(opts => {
                 opts.SignIn.RequireConfirmedEmail = true;
