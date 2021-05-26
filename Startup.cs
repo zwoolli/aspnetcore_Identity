@@ -8,6 +8,8 @@ using WebApp.Data;
 using WebApp.Models;
 using WebApp.Settings;
 using WebApp.Services;
+using System.Data;
+using Npgsql;
 
 namespace WebApp
 {
@@ -27,7 +29,7 @@ namespace WebApp
             // and RoleStore classes do not take a connection string, but are injected with the DapperUsersTable 
             // Or UserRepository (in my case)
             //https://docs.microsoft.com/en-us/aspnet/core/security/authentication/identity-custom-storage-providers?view=aspnetcore-5.0
-            services.AddScoped<Npgsql.NpgsqlConnection>(e => new Npgsql.NpgsqlConnection(connectionString));
+            services.AddScoped<IDbConnection>(e => new NpgsqlConnection(connectionString));
             services.AddScoped<IUserStore<ApplicationUser>, UserStore>();
             services.AddScoped<IRoleStore<ApplicationRole>, RoleStore>();
 

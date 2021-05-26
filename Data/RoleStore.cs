@@ -4,14 +4,15 @@ using System.Threading;
 using System.Threading.Tasks;
 using Npgsql;
 using Dapper;
+using System.Data.Common;
 
 namespace WebApp.Data
 {
     public class RoleStore : IRoleStore<ApplicationRole>
     {
-        private readonly NpgsqlConnection _connection;
+        private readonly DbConnection _connection;
 
-        public RoleStore(NpgsqlConnection connection)
+        public RoleStore(DbConnection connection)
         {
             _connection = connection;
         }

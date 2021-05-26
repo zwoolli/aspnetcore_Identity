@@ -2,16 +2,16 @@ using Microsoft.AspNetCore.Identity;
 using WebApp.Models;
 using System.Threading;
 using System.Threading.Tasks;
-using Npgsql;
 using Dapper;
+using System.Data.Common;
 
 namespace WebApp.Data
 {
     public class UserStore : IUserStore<ApplicationUser>, IUserEmailStore<ApplicationUser>, IUserPhoneNumberStore<ApplicationUser>, IUserTwoFactorStore<ApplicationUser>, IUserPasswordStore<ApplicationUser>
     {
-        private readonly NpgsqlConnection _connection;
+        private readonly DbConnection _connection;
 
-        public UserStore(NpgsqlConnection connection)
+        public UserStore(DbConnection connection)
         {
             _connection = connection;
         }
