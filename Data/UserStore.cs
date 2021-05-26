@@ -2,18 +2,18 @@ using Microsoft.AspNetCore.Identity;
 using WebApp.Models;
 using System.Threading;
 using System.Threading.Tasks;
+using Npgsql;
 using Dapper;
-using System.Data.Common;
 
 namespace WebApp.Data
 {
     public class UserStore : IUserStore<ApplicationUser>, IUserEmailStore<ApplicationUser>, IUserPhoneNumberStore<ApplicationUser>, IUserTwoFactorStore<ApplicationUser>, IUserPasswordStore<ApplicationUser>
     {
-        private readonly DbConnection _connection;
+        private readonly string _connectionString;
 
-        public UserStore(DbConnection connection)
+        public UserStore(string connectionString)
         {
-            _connection = connection;
+            _connectionString = connectionString;
         }
 
         public async Task<IdentityResult> CreateAsync(ApplicationUser user, CancellationToken cancellationToken)
@@ -27,10 +27,10 @@ namespace WebApp.Data
                                     @{nameof(ApplicationUser.PhoneNumber)}, @{nameof(ApplicationUser.PhoneNumberConfirmed)}, @{nameof(ApplicationUser.TwoFactorEnabled)}) 
                             RETURNING id";
 
-            using (_connection)
+            using (var connection = new NpgsqlConnection(_connectionString))
             {
-                await _connection.OpenAsync(cancellationToken);
-                user.Id = await _connection.QuerySingleAsync<int>(sql, user);
+                await connection.OpenAsync(cancellationToken);
+                user.Id = await connection.QuerySingleAsync<int>(sql, user);
             }
 
             return IdentityResult.Success;
@@ -44,15 +44,15 @@ namespace WebApp.Data
                             FROM applicationuser 
                             WHERE id = @{nameof(ApplicationUser.Id)}";
 
-            using (_connection)
+            using (var connection = new NpgsqlConnection(_connectionString))
             {
-                await _connection.OpenAsync(cancellationToken);
-                await _connection.ExecuteAsync(sql, user);
+                await connection.OpenAsync(cancellationToken);
+                await connection.ExecuteAsync(sql, user);
             }            
 
             return IdentityResult.Success;
         }
-      
+
         public async Task<ApplicationUser> FindByIdAsync(string userId, CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();
@@ -61,13 +61,13 @@ namespace WebApp.Data
                             FROM applicationuser 
                             WHERE id = @{nameof(userId)}::integer";
 
-            using (_connection)
+            using (var connection = new NpgsqlConnection(_connectionString))
             {
-                await _connection.OpenAsync(cancellationToken);
-                return await _connection.QuerySingleOrDefaultAsync<ApplicationUser>(sql, new {userId});
+                await connection.OpenAsync(cancellationToken);
+                return await connection.QuerySingleOrDefaultAsync<ApplicationUser>(sql, new {userId});
             }
         }
-      
+
         public async Task<ApplicationUser> FindByNameAsync(string normalizedUserName, CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();
@@ -76,28 +76,28 @@ namespace WebApp.Data
                             FROM applicationuser 
                             WHERE normalizedusername = @{nameof(normalizedUserName)}";
 
-            using (_connection)
+            using (var connection = new NpgsqlConnection(_connectionString))
             {
-                await _connection.OpenAsync(cancellationToken);
-                return await _connection.QuerySingleOrDefaultAsync<ApplicationUser>(sql, new {normalizedUserName});
+                await connection.OpenAsync(cancellationToken);
+                return await connection.QuerySingleOrDefaultAsync<ApplicationUser>(sql, new {normalizedUserName});
             }
         }
-       
+
         public Task<string> GetNormalizedUserNameAsync(ApplicationUser user, CancellationToken cancellationToken)
         {
             return Task.FromResult(user.NormalizedUserName);
         }
-      
+
         public Task<string> GetUserIdAsync(ApplicationUser user, CancellationToken cancellationToken)
         {   
             return Task.FromResult(user.Id.ToString());
         }
-       
+
         public Task<string> GetUserNameAsync(ApplicationUser user, CancellationToken cancellationToken)
         {
             return Task.FromResult(user.UserName);
         }
-       
+
         public Task SetNormalizedUserNameAsync(ApplicationUser user, string normalizedName, CancellationToken cancellationToken)
         {
             user.NormalizedUserName = normalizedName;
@@ -126,10 +126,10 @@ namespace WebApp.Data
                                 twofactorenabled = @{nameof(ApplicationUser.TwoFactorEnabled)} 
                             WHERE id = @{nameof(ApplicationUser.Id)}";
 
-            using (_connection)
+            using (var connection = new NpgsqlConnection(_connectionString))
             {
-                await _connection.OpenAsync(cancellationToken);
-                await _connection.ExecuteAsync(sql, user);
+                await connection.OpenAsync(cancellationToken);
+                await connection.ExecuteAsync(sql, user);
             }
 
             return IdentityResult.Success;
@@ -143,10 +143,10 @@ namespace WebApp.Data
                             FROM applicationuser 
                             WHERE normalizedemail = @{nameof(ApplicationUser.NormalizedEmail)}";
 
-            using (_connection)
+            using (var connection = new NpgsqlConnection(_connectionString))
             {
-                await _connection.OpenAsync(cancellationToken);
-                return await _connection.QuerySingleOrDefaultAsync<ApplicationUser>(sql, new { normalizedEmail });
+                await connection.OpenAsync(cancellationToken);
+                return await connection.QuerySingleOrDefaultAsync<ApplicationUser>(sql, new { normalizedEmail });
             }
         }
 
@@ -164,19 +164,19 @@ namespace WebApp.Data
         {
             return Task.FromResult(user.NormalizedEmail);
         }
-        
+
         public Task SetEmailAsync(ApplicationUser user, string email, CancellationToken cancellationToken)
         {
             user.Email = email;
             return Task.FromResult(0);
         }
-        
+
         public Task SetEmailConfirmedAsync(ApplicationUser user, bool confirmed, CancellationToken cancellationToken)
         {
             user.EmailConfirmed = confirmed;
             return Task.FromResult(0);
         }
-        
+
         public Task SetNormalizedEmailAsync(ApplicationUser user, string normalizedEmail, CancellationToken cancellationToken)
         {
             user.NormalizedEmail = normalizedEmail;
@@ -233,4 +233,4 @@ namespace WebApp.Data
 
         public void Dispose() {}
     }
-}
+} 

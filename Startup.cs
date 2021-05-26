@@ -10,6 +10,7 @@ using WebApp.Settings;
 using WebApp.Services;
 using System.Data;
 using Npgsql;
+using System.Data.Common;
 
 namespace WebApp
 {
@@ -29,21 +30,23 @@ namespace WebApp
             // and RoleStore classes do not take a connection string, but are injected with the DapperUsersTable 
             // Or UserRepository (in my case)
             //https://docs.microsoft.com/en-us/aspnet/core/security/authentication/identity-custom-storage-providers?view=aspnetcore-5.0
-            services.AddScoped<IDbConnection>(e => new NpgsqlConnection(connectionString));
-            services.AddScoped<IUserStore<ApplicationUser>, UserStore>();
-            services.AddScoped<IRoleStore<ApplicationRole>, RoleStore>();
+            // services.AddScoped<NpgsqlConnection>(e => new NpgsqlConnection(connectionString));
+            // services.AddScoped<IUserStore<ApplicationUser>, UserStore>();
+            // services.AddScoped<IRoleStore<ApplicationRole>, RoleStore>();
 
 
-            // services.AddScoped<IUserStore<ApplicationUser>>(x => new UserStore(connectionString));
-            // services.AddScoped<IRoleStore<ApplicationRole>>(x => new RoleStore(connectionString));
+            services.AddScoped<IUserStore<ApplicationUser>>(x => new UserStore(connectionString));
+            services.AddScoped<IRoleStore<ApplicationRole>>(x => new RoleStore(connectionString));
             services.AddIdentity<ApplicationUser, ApplicationRole>().AddDefaultTokenProviders();
             services.Configure<IdentityOptions>(opts => {
                 opts.SignIn.RequireConfirmedEmail = true;
             });
             services.Configure<MailSettings>(Configuration.GetSection("MailSettings"));
+            services.Configure<AuthMessageSenderOptions>(Configuration); // For sendgrid
 
             // services.AddTransient<IMailService, BasicSMTPService>();
-            services.AddTransient<IMailService, MailKitService>();
+            // services.AddTransient<IMailService, MailKitService>();
+            services.AddTransient<IMailService, SendGridService>();
 
             services.AddRazorPages();
         }

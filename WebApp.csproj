@@ -1,7 +1,8 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
     <TargetFramework>net5.0</TargetFramework>
+    <UserSecretsId>1fc3cf1c-244c-449b-80be-0d89d9704935</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>
@@ -9,6 +10,7 @@
     <PackageReference Include="mailkit" Version="2.12.0" />
     <PackageReference Include="mimekit" Version="2.12.0" />
     <PackageReference Include="npgsql" Version="5.0.5" />
+    <PackageReference Include="sendgrid" Version="9.23.2" />
   </ItemGroup>
 
 </Project>
